@@ -201,7 +201,7 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
-
+  list_sort(&ready_list, &thread_priority_comparator, thread_current ()->priority); // sort list
   return tid;
 }
 
@@ -348,7 +348,7 @@ thread_priority_comparator(list_elem *elem, list_elem *other, void *aux)
 {   
     struct thread* t1 = list_entry(elem, struct thread, belem);
     struct thread* t2 = list_entry(other, struct thread, belem);
-    return ((t1->priority)-(t2->priority)>0);
+    return ((t1->priority)-(t2->priority)>0); // as higher priority values = higher priority
 }
 
 /* Returns the current thread's priority. */
@@ -447,7 +447,7 @@ running_thread (void)
   /* Copy the CPU's stack pointer into `esp', and then round that
      down to the start of a page.  Because `struct thread' is
      always at the beginning of a page and the stack pointer is
-     somewhere in the middle, this locates the curent thread. */
+     somewhere in the middle, this locates the current thread. */
   asm ("mov %%esp, %0" : "=g" (esp));
   return pg_round_down (esp);
 }

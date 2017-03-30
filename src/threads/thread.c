@@ -201,8 +201,19 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
-  list_sort(&ready_list, &thread_priority_comparator, thread_current ()->priority); // sort list
+  thread_check_priority();
   return tid;
+}
+
+void
+thread_check_priority(void){
+  list_sort(&ready_list, &thread_priority_comparator, thread_current ()->priority); // sort list
+  int curPri = thread_current()->priority; // check if there's a thread with higher priority on list
+  struct thread* t = list_entry(list_front(&ready_list), struct thread, belem); // thread at head of list
+  if(t->priority > curPri){// if so, kick this one off and run other thread
+      printf("Cur pri: " + curPri + ", head pri: " + t->priority);
+      thread_yield();
+  }
 }
 
 /* Puts the current thread to sleep.  It will not be scheduled
@@ -337,9 +348,7 @@ void
 thread_set_priority (int new_priority) 
 {
   thread_current ()->priority = new_priority;
-  list_sort(&ready_list, &thread_priority_comparator, thread_current ()->priority); // sort list
-  // check if there's a thread with higher priority on list
-  // if so, kick this one of and run other thread
+  thread_check_priority();
 }
 
 /* Returns whether an element has a lower priority than another element */

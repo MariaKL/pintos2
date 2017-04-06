@@ -203,7 +203,7 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
-  //thread_check_priority();
+  thread_check_priority();
   return tid;
 }
 
@@ -219,13 +219,12 @@ thread_priority_comparator(const struct list_elem *elem, const struct list_elem 
 
 void
 thread_check_priority(void){
-  list_sort(&ready_list, thread_priority_comparator, NULL); // sort list
-  //thread_current ()->priority
+  list_sort(&ready_list, thread_priority_comparator, thread_current ()->priority); // sort list
   // if higher priority thread on ready list, kick current off and run higher priority thread
   int curPri = thread_current()->priority;
   struct thread* t = list_entry(list_front(&ready_list), struct thread, elem);
   if(t->priority > curPri){
-      printf("Cur pri: %d, head pri: %d.\n", curPri, t->priority);
+      //printf("Cur pri: %d, head pri: %d.\n", curPri, t->priority);
       thread_yield();
   }
 }

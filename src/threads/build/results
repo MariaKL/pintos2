@@ -1,0 +1,4 @@
+FAIL tests/threads/priority-fifo
+pass tests/threads/priority-preempt
+pass tests/threads/priority-change
+pass tests/threads/alarm-priority

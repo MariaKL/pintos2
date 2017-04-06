@@ -12,18 +12,18 @@ struct test
 static const struct test tests[] = 
   {
     {"alarm-priority", test_alarm_priority},
-//    {"priority-change", test_priority_change},
-//    {"priority-preempt", test_priority_preempt},
-//    {"priority-fifo", test_priority_fifo},
-//    {"priority-sema", test_priority_sema},
-//    {"priority-condvar", test_priority_condvar},
-//    {"priority-donate-one", test_priority_donate_one},
-//    {"priority-donate-sema", test_priority_donate_sema},
-//    {"priority-donate-lower", test_priority_donate_lower},
-//    {"priority-donate-multiple", test_priority_donate_multiple},
-//    {"priority-donate-multiple2", test_priority_donate_multiple2},
-//    {"priority-donate-nest", test_priority_donate_nest},
-//    {"priority-donate-chain", test_priority_donate_chain},
+    {"priority-change", test_priority_change},
+    {"priority-preempt", test_priority_preempt},
+    {"priority-fifo", test_priority_fifo},
+    {"priority-sema", test_priority_sema},
+    {"priority-condvar", test_priority_condvar},
+    {"priority-donate-one", test_priority_donate_one},
+    {"priority-donate-sema", test_priority_donate_sema},
+    {"priority-donate-lower", test_priority_donate_lower},
+    {"priority-donate-multiple", test_priority_donate_multiple},
+    {"priority-donate-multiple2", test_priority_donate_multiple2},
+    {"priority-donate-nest", test_priority_donate_nest},
+    {"priority-donate-chain", test_priority_donate_chain},
   };
 
 static const char *test_name;

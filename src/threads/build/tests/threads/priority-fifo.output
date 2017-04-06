@@ -1,0 +1,23 @@
+qemu -hda /tmp/ZbfugjytoT.dsk -m 4 -net none -nographic -monitor null
+PiLo hda1
+Loading........
+Kernel command line: -q run priority-fifo
+Pintos booting with 3,968 kB RAM...
+367 pages available in kernel pool.
+367 pages available in user pool.
+Calibrating timer...  628,326,400 loops/s.
+Boot complete.
+Executing 'priority-fifo':
+(priority-fifo) begin
+(priority-fifo) 16 threads will iterate 16 times in the same order each time.
+(priority-fifo) If the order varies then there is a bug.
+Kernel PANIC at ../../lib/kernel/list.c:282 in list_front(): assertion `!list_empty (list)' failed.
+Call stack: 0xc0028330 0xc0028f74 0xc0020e38 0xc0020e5e 0xc002b076 0xc002a263 0xc00201d5 0xc002079b.
+The `backtrace' program can make call stacks useful.
+Read "Backtraces" in the "Debugging Tools" chapter
+of the Pintos documentation for more information.
+Timer: 46 ticks
+Thread: 0 idle ticks, 46 kernel ticks, 0 user ticks
+Console: 813 characters output
+Keyboard: 0 keys pressed
+Powering off...

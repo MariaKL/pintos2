@@ -71,6 +71,8 @@ static void *alloc_frame (struct thread *, size_t size);
 static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
+void thread_check_priority(void); /*schedules thread of highest priority*/
+bool thread_priority_comparator(const struct list_elem *elem, const struct list_elem *other, void *aux UNUSED);
 
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
@@ -201,17 +203,29 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
-  thread_check_priority();
+  //thread_check_priority();
   return tid;
+}
+
+
+/* Returns whether an element has a lower priority than another element */
+bool
+thread_priority_comparator(const struct list_elem *elem, const struct list_elem *other, void *aux UNUSED)
+{   
+    struct thread* t1 = list_entry(elem, struct thread, elem);
+    struct thread* t2 = list_entry(other, struct thread, elem);
+    return (t1->priority-t2->priority>0); // as higher priority values = higher priority
 }
 
 void
 thread_check_priority(void){
-  list_sort(&ready_list, &thread_priority_comparator, thread_current ()->priority); // sort list
-  int curPri = thread_current()->priority; // check if there's a thread with higher priority on list
-  struct thread* t = list_entry(list_front(&ready_list), struct thread, belem); // thread at head of list
-  if(t->priority > curPri){// if so, kick this one off and run other thread
-      printf("Cur pri: " + curPri + ", head pri: " + t->priority);
+  list_sort(&ready_list, thread_priority_comparator, NULL); // sort list
+  //thread_current ()->priority
+  // if higher priority thread on ready list, kick current off and run higher priority thread
+  int curPri = thread_current()->priority;
+  struct thread* t = list_entry(list_front(&ready_list), struct thread, elem);
+  if(t->priority > curPri){
+      printf("Cur pri: %d, head pri: %d.\n", curPri, t->priority);
       thread_yield();
   }
 }
@@ -349,15 +363,6 @@ thread_set_priority (int new_priority)
 {
   thread_current ()->priority = new_priority;
   thread_check_priority();
-}
-
-/* Returns whether an element has a lower priority than another element */
-bool
-thread_priority_comparator(list_elem *elem, list_elem *other, void *aux)
-{   
-    struct thread* t1 = list_entry(elem, struct thread, belem);
-    struct thread* t2 = list_entry(other, struct thread, belem);
-    return ((t1->priority)-(t2->priority)>0); // as higher priority values = higher priority
 }
 
 /* Returns the current thread's priority. */
@@ -515,7 +520,7 @@ next_thread_to_run (void)
   if (list_empty (&ready_list))
     return idle_thread;
   else{
-    list_sort(&ready_list, &thread_priority_comparator, thread_current ()->priority); // sort list
+    list_sort(&ready_list, thread_priority_comparator, NULL); // sort list
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
   }
 }

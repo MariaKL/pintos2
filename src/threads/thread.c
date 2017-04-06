@@ -222,10 +222,12 @@ thread_check_priority(void){
   list_sort(&ready_list, thread_priority_comparator, thread_current ()->priority); // sort list
   // if higher priority thread on ready list, kick current off and run higher priority thread
   int curPri = thread_current()->priority;
-  struct thread* t = list_entry(list_front(&ready_list), struct thread, elem);
-  if(t->priority > curPri){
+  if(!list_empty(&ready_list)){
+    struct thread* t = list_entry(list_front(&ready_list), struct thread, elem);
+    if(t->priority > curPri){
       //printf("Cur pri: %d, head pri: %d.\n", curPri, t->priority);
       thread_yield();
+    }
   }
 }
 

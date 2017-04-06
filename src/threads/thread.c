@@ -207,7 +207,6 @@ thread_create (const char *name, int priority,
   return tid;
 }
 
-
 /* Returns whether an element has a lower priority than another element */
 bool
 thread_priority_comparator(const struct list_elem *elem, const struct list_elem *other, void *aux UNUSED)

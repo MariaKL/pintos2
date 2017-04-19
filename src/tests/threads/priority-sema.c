@@ -40,6 +40,8 @@ test_priority_sema (void)
 static void
 priority_sema_thread (void *aux UNUSED) 
 {
+  //msg("In sema_thread method, %s", thread_name());
   sema_down (&sema);
   msg ("Thread %s woke up.", thread_name ());
 }
+//current thread not getting preempted

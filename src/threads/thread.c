@@ -71,7 +71,7 @@ static void *alloc_frame (struct thread *, size_t size);
 static void schedule (void);
 void thread_schedule_tail (struct thread *prev);
 static tid_t allocate_tid (void);
-void thread_check_priority(void); /*schedules thread of highest priority*/
+void thread_preempt(void); /*schedules thread of highest priority*/
 bool thread_priority_comparator(const struct list_elem *elem, const struct list_elem *other, void *aux UNUSED);
 
 /* Initializes the threading system by transforming the code
@@ -203,7 +203,7 @@ thread_create (const char *name, int priority,
 
   /* Add to run queue. */
   thread_unblock (t);
-  thread_check_priority();
+  thread_preempt();
   return tid;
 }
 
@@ -217,7 +217,7 @@ thread_priority_comparator(const struct list_elem *elem, const struct list_elem 
 }
 
 void
-thread_check_priority(void){
+thread_preempt(void){
   list_sort(&ready_list, thread_priority_comparator, thread_current ()->priority); // sort list
   // if higher priority thread on ready list, kick current off and run higher priority thread
   int curPri = thread_current()->priority;
@@ -362,7 +362,7 @@ void
 thread_set_priority (int new_priority) 
 {
   thread_current ()->priority = new_priority;
-  thread_check_priority();
+  thread_preempt();
 }
 
 /* Returns the current thread's priority. */

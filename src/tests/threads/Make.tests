@@ -2,6 +2,7 @@
 
 # Test names.
 tests/threads_TESTS = $(addprefix tests/threads/,                       \
+priority-condvar                                                        \
 priority-sema                                                           \
 priority-fifo                                                           \
 priority-preempt                                                        \
@@ -9,14 +10,12 @@ priority-change                                                         \
 alarm-priority                                                          \
 )                                                                       \
 
-
 #priority-donate-one                                                    \
 #priority-donate-multiple                                               \
 #priority-donate-multiple2                                              \
 #priority-donate-nest                                                   \
 #priority-donate-sema                                                   \
 #priority-donate-lower                                                  \
-#priority-condvar                                                       \
 #priority-donate-chain                                                  \
 #)                                                                      \
 

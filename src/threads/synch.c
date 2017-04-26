@@ -32,6 +32,8 @@
 #include "threads/interrupt.h"
 #include "threads/thread.h"
 
+bool condvar_priority_comparator(const struct list_elem *elem, const struct list_elem *other, void *aux UNUSED);
+
 /* Initializes semaphore SEMA to VALUE.  A semaphore is a
    nonnegative integer along with two atomic operators for
    manipulating it:
@@ -198,7 +200,7 @@ lock_acquire (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (!intr_context ());
   ASSERT (!lock_held_by_current_thread (lock));
-
+  
   sema_down (&lock->semaphore);
   lock->holder = thread_current ();
 }
@@ -254,6 +256,7 @@ struct semaphore_elem
   {
     struct list_elem elem;              /* List element. */
     struct semaphore semaphore;         /* This semaphore. */
+    int priority;                       /* Priority of the associated thread */
   };
 
 /* Initializes condition variable COND.  A condition variable
@@ -298,9 +301,10 @@ cond_wait (struct condition *cond, struct lock *lock)
   ASSERT (lock_held_by_current_thread (lock));
   sema_init (&waiter.semaphore, 0);
   list_push_back (&cond->waiters, &waiter.elem);
+  waiter.priority = thread_current()->priority;
   lock_release (lock);
   sema_down (&waiter.semaphore);
-  lock_acquire (lock);
+  lock_acquire (lock);  
 }
 
 /* If any threads are waiting on COND (protected by LOCK), then
@@ -318,7 +322,8 @@ cond_signal (struct condition *cond, struct lock *lock UNUSED)
   ASSERT (!intr_context ());
   ASSERT (lock_held_by_current_thread (lock));
 
-  if (!list_empty (&cond->waiters)){
+  if (!list_empty (&cond->waiters)){  
+    list_sort(&cond->waiters, condvar_priority_comparator, NULL); // sort list
     sema_up (&list_entry (list_pop_front (&cond->waiters),
                           struct semaphore_elem, elem)->semaphore);
   }
@@ -338,4 +343,13 @@ cond_broadcast (struct condition *cond, struct lock *lock)
 
   while (!list_empty (&cond->waiters))
     cond_signal (cond, lock);
+}
+
+/* Returns whether an element has a lower priority than another element */
+bool
+condvar_priority_comparator(const struct list_elem *elem, const struct list_elem *other, void *aux UNUSED)
+{   
+    struct semaphore_elem * s1 = list_entry(elem, struct semaphore_elem, elem);
+    struct semaphore_elem * s2 = list_entry(other, struct semaphore_elem, elem);
+    return (s1->priority-s2->priority>0); // as higher priority values = higher priority
 }

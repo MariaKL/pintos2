@@ -161,7 +161,7 @@ sema_test_helper (void *sema_)
       sema_up (&sema[1]);
     }
 }
-
+
 /* Initializes LOCK.  A lock can be held by at most a single
    thread at any given time.  Our locks are not "recursive", that
    is, it is an error for the thread currently holding a lock to
@@ -200,7 +200,18 @@ lock_acquire (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (!intr_context ());
   ASSERT (!lock_held_by_current_thread (lock));
-  
+
+//  printf("Semaphore's value: %d\n", (&lock->semaphore)->value);
+// check if lock is held by a lower priority thread L
+  if((&lock->semaphore)->value==0){
+      printf("\nHeld semaphore by %s", lock->holder->name);
+      if(lock->holder->priority < thread_current()->priority){
+          printf("\nHeld priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+          lock->holder->oldPriority = lock->holder->priority;
+          lock->holder->priority = thread_current()->priority;
+          printf("\nAFTER---Held priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+      }
+  }
   sema_down (&lock->semaphore);
   lock->holder = thread_current ();
 }
@@ -236,6 +247,16 @@ lock_release (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (lock_held_by_current_thread (lock));
 
+  // check if I have an oldPri
+    // save temp pri
+    // set old pri to NULL
+    // set current pri to oldPri
+  // printf("\nRelease thread: %s", thread_current()->name);
+  if(thread_current()->oldPriority!=NULL){
+    //printf("\nOld priority %d != current priority %d.", thread_current()->oldPriority, thread_current()->priority);
+    thread_current()->priority = thread_current()->oldPriority;
+    thread_current()->oldPriority = NULL;
+  }
   lock->holder = NULL;
   sema_up (&lock->semaphore);
 }
@@ -250,7 +271,7 @@ lock_held_by_current_thread (const struct lock *lock)
 
   return lock->holder == thread_current ();
 }
-
+
 /* One semaphore in a list. */
 struct semaphore_elem 
   {
@@ -353,3 +374,5 @@ condvar_priority_comparator(const struct list_elem *elem, const struct list_elem
     struct semaphore_elem * s2 = list_entry(other, struct semaphore_elem, elem);
     return (s1->priority-s2->priority>0); // as higher priority values = higher priority
 }
+
+

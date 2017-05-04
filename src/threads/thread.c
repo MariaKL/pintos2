@@ -364,11 +364,10 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {
-  int oldPri = thread_current()->priority;
   thread_current ()->priority = new_priority;
-  if(new_priority<oldPri){
-      thread_preempt();
-  }
+//  list_sort(&ready_list, thread_priority_comparator, NULL);
+  thread_preempt();
+  
   // insert sorted for ready list
   // sort all list
   // -> change preempt
@@ -499,11 +498,12 @@ init_thread (struct thread *t, const char *name, int priority)
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
-  t->oldPriority = NULL;
+  t->oldPriority = -1; // thread does not have a donated priority
   t->magic = THREAD_MAGIC;
 
   old_level = intr_disable ();
   list_insert_ordered (&all_list, &t->allelem, thread_priority_comparator, NULL);
+//  list_push_back(&all_list, &t->allelem);
   intr_set_level (old_level);
 }
 
@@ -531,7 +531,6 @@ next_thread_to_run (void)
   if (list_empty (&ready_list))
     return idle_thread;
   else{
-    //list_sort(&ready_list, thread_priority_comparator, NULL); // sort list
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
   }
 }

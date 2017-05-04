@@ -73,6 +73,7 @@ sema_down (struct semaphore *sema)
       list_push_back (&sema->waiters, &thread_current ()->elem);
       thread_block ();
     }
+  
   sema->value--;
   intr_set_level (old_level);
 }
@@ -201,15 +202,14 @@ lock_acquire (struct lock *lock)
   ASSERT (!intr_context ());
   ASSERT (!lock_held_by_current_thread (lock));
 
-//  printf("Semaphore's value: %d\n", (&lock->semaphore)->value);
 // check if lock is held by a lower priority thread L
   if((&lock->semaphore)->value==0){
-      msg("\nHeld semaphore by %s", lock->holder->name);
+//      msg("\nHeld semaphore by %s", lock->holder->name);
       if(lock->holder->priority < thread_current()->priority){
-          msg("\nHeld priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+//          msg("\nHeld priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
           lock->holder->oldPriority = lock->holder->priority;
           lock->holder->priority = thread_current()->priority;
-          msg("\nAFTER---Held priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+//          msg("\nAFTER---Held priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
       }
   }
   sema_down (&lock->semaphore);
@@ -252,10 +252,10 @@ lock_release (struct lock *lock)
     // set old pri to NULL
     // set current pri to oldPri
   // printf("\nRelease thread: %s", thread_current()->name);
-  if(thread_current()->oldPriority!=NULL){
+  if(thread_current()->oldPriority!=-1){ // thread has a donated priority
 //    msg("\nOld priority %d != current priority %d.", thread_current()->oldPriority, thread_current()->priority);
-    thread_current()->priority = thread_current()->oldPriority;
-    thread_current()->oldPriority = NULL;
+    thread_current()->priority = thread_current()->oldPriority; // revoke donation
+    thread_current()->oldPriority = -1; // thread no longer has donated priority
   }
   lock->holder = NULL;
   sema_up (&lock->semaphore);

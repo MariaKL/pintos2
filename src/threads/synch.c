@@ -204,12 +204,12 @@ lock_acquire (struct lock *lock)
 //  printf("Semaphore's value: %d\n", (&lock->semaphore)->value);
 // check if lock is held by a lower priority thread L
   if((&lock->semaphore)->value==0){
-      printf("\nHeld semaphore by %s", lock->holder->name);
+      msg("\nHeld semaphore by %s", lock->holder->name);
       if(lock->holder->priority < thread_current()->priority){
-          printf("\nHeld priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+          msg("\nHeld priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
           lock->holder->oldPriority = lock->holder->priority;
           lock->holder->priority = thread_current()->priority;
-          printf("\nAFTER---Held priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+          msg("\nAFTER---Held priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
       }
   }
   sema_down (&lock->semaphore);
@@ -253,7 +253,7 @@ lock_release (struct lock *lock)
     // set current pri to oldPri
   // printf("\nRelease thread: %s", thread_current()->name);
   if(thread_current()->oldPriority!=NULL){
-    //printf("\nOld priority %d != current priority %d.", thread_current()->oldPriority, thread_current()->priority);
+//    msg("\nOld priority %d != current priority %d.", thread_current()->oldPriority, thread_current()->priority);
     thread_current()->priority = thread_current()->oldPriority;
     thread_current()->oldPriority = NULL;
   }

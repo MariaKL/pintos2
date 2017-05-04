@@ -216,7 +216,6 @@ thread_priority_comparator(const struct list_elem *elem, const struct list_elem 
 
 void
 thread_preempt(void){
-  list_sort(&ready_list, thread_priority_comparator, thread_current ()->priority); // sort list
   // if higher priority thread on ready list, kick current off and run higher priority thread
   int curPri = thread_current()->priority;
   if(!list_empty(&ready_list)){
@@ -261,7 +260,10 @@ thread_unblock (struct thread *t)
 
   old_level = intr_disable ();
   ASSERT (t->status == THREAD_BLOCKED);
-  list_push_back (&ready_list, &t->elem);
+  
+  list_insert_ordered(&ready_list, &t->elem, 
+    thread_priority_comparator, NULL); // sort list
+//  list_push_back (&ready_list, &t->elem);
   t->status = THREAD_READY;
   intr_set_level (old_level);
 }
@@ -331,8 +333,11 @@ thread_yield (void)
   ASSERT (!intr_context ());
 
   old_level = intr_disable ();
-  if (cur != idle_thread) 
-    list_push_back (&ready_list, &cur->elem);
+  if (cur != idle_thread){
+    list_insert_ordered(&ready_list, &cur->elem, 
+      thread_priority_comparator, NULL); // sort list
+  }
+//    list_push_back (&ready_list, &cur->elem);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -359,8 +364,15 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {
+  int oldPri = thread_current()->priority;
   thread_current ()->priority = new_priority;
-  thread_preempt();
+  if(new_priority<oldPri){
+      thread_preempt();
+  }
+  // insert sorted for ready list
+  // sort all list
+  // -> change preempt
+  // fix set_priority
 }
 
 /* Returns the current thread's priority. */
@@ -491,7 +503,7 @@ init_thread (struct thread *t, const char *name, int priority)
   t->magic = THREAD_MAGIC;
 
   old_level = intr_disable ();
-  list_push_back (&all_list, &t->allelem);
+  list_insert_ordered (&all_list, &t->allelem, thread_priority_comparator, NULL);
   intr_set_level (old_level);
 }
 
@@ -519,7 +531,7 @@ next_thread_to_run (void)
   if (list_empty (&ready_list))
     return idle_thread;
   else{
-    list_sort(&ready_list, thread_priority_comparator, NULL); // sort list
+    //list_sort(&ready_list, thread_priority_comparator, NULL); // sort list
     return list_entry (list_pop_front (&ready_list), struct thread, elem);
   }
 }

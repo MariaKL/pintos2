@@ -364,9 +364,19 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {
-  thread_current ()->priority = new_priority;
-//  list_sort(&ready_list, thread_priority_comparator, NULL);
-  thread_preempt();
+//  while(thread_current()->oldPriority!=-1){
+//      printf("\nNot -1 --Current thread's old priority: %s", thread_current()->oldPriority);
+//      thread_yield();
+//  }
+   
+  printf("\nCurrent thread's old priority: %s", thread_current()->oldPriority);
+//  if(thread_current()->oldPriority != -1){
+//    thread_current()->oldPriority = new_priority;
+//  }
+//  else{
+    thread_current ()->priority = new_priority;
+    thread_preempt();
+//  }
   
   // insert sorted for ready list
   // sort all list

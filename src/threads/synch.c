@@ -204,16 +204,19 @@ lock_acquire (struct lock *lock)
 
 // check if lock is held by a lower priority thread L
   if((&lock->semaphore)->value==0){
+  printf("%s acquiring lock\n", thread_current()->name);
 //      msg("Held semaphore by %s", lock->holder->name);
 //      msg("%s currently trying to get a hold of lock", thread_current()->name);
       if(lock->holder->priority < thread_current()->priority){
-//          msg("\nHeld priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+//          printf("%s hold priority: %d, my priority: %d\n", lock->holder->name, lock->holder->priority, thread_current()->priority);
           lock->holder->priority = thread_current()->priority;
-//          msg("\nAFTER---Held priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+          printf("AFTER---%s held priority: %d, my priority: %d\n", lock->holder->name, lock->holder->priority, thread_current()->priority);
       }
   }
   sema_down (&lock->semaphore);
   lock->holder = thread_current ();
+  printf("%s acquired lock\n", thread_current()->name);
+  printf("AFTER ACQUIRE---%s held priority: %d, old priority: %d\n", thread_current()->name, thread_current()->priority, thread_current()->originalPri);
 }
 
 /* Tries to acquires LOCK and returns true if successful or false
@@ -248,11 +251,14 @@ lock_release (struct lock *lock)
   ASSERT (lock_held_by_current_thread (lock));
 
   if(thread_current()->originalPri != thread_current()->priority){ // thread has a donated priority
+    printf("%s revoked %d to %d\n", thread_current()->name, thread_current()->priority, thread_current()->originalPri);
     thread_current()->priority = thread_current()->originalPri; // revoke donation
+    printf("AFTER---%s revoked %d to %d\n", thread_current()->name, thread_current()->priority, thread_current()->originalPri);
   }
+//  printf("%s releasing lock\n", thread_current()->name);
   lock->holder = NULL;
   sema_up (&lock->semaphore);
-//  thread_preempt();
+  thread_preempt();
 }
 
 /* Returns true if the current thread holds LOCK, false

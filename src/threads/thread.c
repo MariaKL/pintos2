@@ -221,7 +221,7 @@ thread_preempt(void){
   if(!list_empty(&ready_list)){
     struct thread* t = list_entry(list_front(&ready_list), struct thread, elem);
     if(t->priority > curPri){
-      //printf("Cur pri: %d, head pri: %d.\n", curPri, t->priority);
+//      printf("Cur pri: %d, head pri: %d.\n", curPri, t->priority);
       thread_yield();
     }
   }
@@ -263,7 +263,6 @@ thread_unblock (struct thread *t)
   
   list_insert_ordered(&ready_list, &t->elem, 
     thread_priority_comparator, NULL); // sort list
-//  list_push_back (&ready_list, &t->elem);
   t->status = THREAD_READY;
   intr_set_level (old_level);
 }
@@ -337,7 +336,6 @@ thread_yield (void)
     list_insert_ordered(&ready_list, &cur->elem, 
       thread_priority_comparator, NULL); // sort list
   }
-//    list_push_back (&ready_list, &cur->elem);
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
@@ -364,7 +362,7 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {   
-//    msg("%s original priority %d", thread_current()->name, thread_current()->originalPri);
+  msg("%s original priority %d, current priority %d", thread_current()->name, thread_current()->originalPri, thread_current()->priority);
   if(thread_current()->originalPri != thread_current()->priority){ // currently using donated priority
     thread_current()->originalPri = new_priority;
   }
@@ -504,7 +502,6 @@ init_thread (struct thread *t, const char *name, int priority)
 
   old_level = intr_disable ();
   list_insert_ordered (&all_list, &t->allelem, thread_priority_comparator, NULL);
-//  list_push_back(&all_list, &t->allelem);
   intr_set_level (old_level);
 }
 

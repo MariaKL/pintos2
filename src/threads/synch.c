@@ -207,8 +207,10 @@ lock_acquire (struct lock *lock)
 //      msg("\nHeld semaphore by %s", lock->holder->name);
       if(lock->holder->priority < thread_current()->priority){
 //          msg("\nHeld priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
+          intr_disable();
           lock->holder->oldPriority = lock->holder->priority;
           lock->holder->priority = thread_current()->priority;
+          intr_enable();
 //          msg("\nAFTER---Held priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
       }
   }
@@ -247,15 +249,10 @@ lock_release (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (lock_held_by_current_thread (lock));
 
-  // check if I have an oldPri
-    // save temp pri
-    // set old pri to NULL
-    // set current pri to oldPri
-  // printf("\nRelease thread: %s", thread_current()->name);
-  if(thread_current()->oldPriority!=-1){ // thread has a donated priority
-//    msg("\nOld priority %d != current priority %d.", thread_current()->oldPriority, thread_current()->priority);
+  if(thread_current()->oldPriority > 0){ // thread has a donated priority
+      msg("Revoking donation.");
     thread_current()->priority = thread_current()->oldPriority; // revoke donation
-    thread_current()->oldPriority = -1; // thread no longer has donated priority
+    thread_current()->oldPriority = -1;
   }
   lock->holder = NULL;
   sema_up (&lock->semaphore);

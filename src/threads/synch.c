@@ -204,13 +204,11 @@ lock_acquire (struct lock *lock)
 
 // check if lock is held by a lower priority thread L
   if((&lock->semaphore)->value==0){
-//      msg("\nHeld semaphore by %s", lock->holder->name);
+//      msg("Held semaphore by %s", lock->holder->name);
+//      msg("%s currently trying to get a hold of lock", thread_current()->name);
       if(lock->holder->priority < thread_current()->priority){
 //          msg("\nHeld priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
-          intr_disable();
-          lock->holder->oldPriority = lock->holder->priority;
           lock->holder->priority = thread_current()->priority;
-          intr_enable();
 //          msg("\nAFTER---Held priority: %d, my priority: %d", lock->holder->priority, thread_current()->priority);
       }
   }
@@ -249,13 +247,12 @@ lock_release (struct lock *lock)
   ASSERT (lock != NULL);
   ASSERT (lock_held_by_current_thread (lock));
 
-  if(thread_current()->oldPriority > 0){ // thread has a donated priority
-      msg("Revoking donation.");
-    thread_current()->priority = thread_current()->oldPriority; // revoke donation
-    thread_current()->oldPriority = -1;
+  if(thread_current()->originalPri != thread_current()->priority){ // thread has a donated priority
+    thread_current()->priority = thread_current()->originalPri; // revoke donation
   }
   lock->holder = NULL;
   sema_up (&lock->semaphore);
+//  thread_preempt();
 }
 
 /* Returns true if the current thread holds LOCK, false

@@ -364,11 +364,13 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {   
-  if(thread_current()->oldPriority >= 0){ // currently using donated priority
-    thread_current()->oldPriority = new_priority;
+//    msg("%s original priority %d", thread_current()->name, thread_current()->originalPri);
+  if(thread_current()->originalPri != thread_current()->priority){ // currently using donated priority
+    thread_current()->originalPri = new_priority;
   }
   else{
     thread_current ()->priority = new_priority;
+    thread_current()->originalPri = new_priority;
     thread_preempt();
   }
 }
@@ -497,7 +499,7 @@ init_thread (struct thread *t, const char *name, int priority)
   strlcpy (t->name, name, sizeof t->name);
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
-  t->oldPriority = -1; // thread does not have a donated priority
+  t->originalPri = priority;
   t->magic = THREAD_MAGIC;
 
   old_level = intr_disable ();

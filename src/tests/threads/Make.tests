@@ -9,9 +9,9 @@ priority-sema                                                           \
 priority-fifo                                                           \
 priority-preempt                                                        \
 priority-change                                                         \
-alarm-priority                                                          \
 )                                                                       \
 
+#alarm-priority                                                          \
 #priority-donate-multiple                                               \
 #priority-donate-multiple2                                              \
 #priority-donate-nest                                                   \

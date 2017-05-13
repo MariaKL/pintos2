@@ -9,6 +9,7 @@ priority-sema                                                           \
 priority-fifo                                                           \
 priority-preempt                                                        \
 priority-change                                                         \
+alarm-priority                                                          \
 )                                                                       \
 
 #alarm-priority                                                          \

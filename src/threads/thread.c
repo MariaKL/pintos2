@@ -362,7 +362,7 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {   
-  msg("%s original priority %d, current priority %d", thread_current()->name, thread_current()->originalPri, thread_current()->priority);
+  //msg("%s original priority %d, current priority %d", thread_current()->name, thread_current()->originalPri, thread_current()->priority);
   if(thread_current()->originalPri != thread_current()->priority){ // currently using donated priority
     thread_current()->originalPri = new_priority;
   }

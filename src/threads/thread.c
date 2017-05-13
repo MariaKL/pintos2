@@ -221,7 +221,6 @@ thread_preempt(void){
   if(!list_empty(&ready_list)){
     struct thread* t = list_entry(list_front(&ready_list), struct thread, elem);
     if(t->priority > curPri){
-//      printf("Cur pri: %d, head pri: %d.\n", curPri, t->priority);
       thread_yield();
     }
   }
@@ -362,7 +361,6 @@ thread_foreach (thread_action_func *func, void *aux)
 void
 thread_set_priority (int new_priority) 
 {   
-  //msg("%s original priority %d, current priority %d", thread_current()->name, thread_current()->originalPri, thread_current()->priority);
   if(thread_current()->originalPri != thread_current()->priority){ // currently using donated priority
     thread_current()->originalPri = new_priority;
   }
@@ -410,7 +408,7 @@ thread_get_recent_cpu (void)
   /* Not yet implemented. */
   return 0;
 }
-
+
 /* Idle thread.  Executes when no other thread is ready to run.
 
    The idle thread is initially put on the ready list by
@@ -459,7 +457,7 @@ kernel_thread (thread_func *function, void *aux)
   function (aux);       /* Execute the thread function. */
   thread_exit ();       /* If function() returns, kill the thread. */
 }
-
+
 /* Returns the running thread. */
 struct thread *
 running_thread (void) 
@@ -615,7 +613,7 @@ allocate_tid (void)
 
   return tid;
 }
-
+
 /* Offset of `stack' member within `struct thread'.
    Used by switch.S, which can't figure it out on its own. */
 uint32_t thread_stack_ofs = offsetof (struct thread, stack);

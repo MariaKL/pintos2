@@ -70,7 +70,8 @@ sema_down (struct semaphore *sema)
   old_level = intr_disable ();
   while (sema->value == 0) 
     {
-      list_push_back (&sema->waiters, &thread_current ()->elem);
+      list_insert_ordered(&sema->waiters, &thread_current()->elem,
+        thread_priority_comparator, NULL); // sort list
       thread_block ();
     }
   
@@ -117,7 +118,6 @@ sema_up (struct semaphore *sema)
 
   old_level = intr_disable ();
   if (!list_empty (&sema->waiters)){
-    list_sort(&sema->waiters, thread_priority_comparator, NULL); // sort list
     thread_unblock (list_entry (list_pop_front (&sema->waiters),
                                 struct thread, elem));
   }
@@ -321,7 +321,9 @@ cond_wait (struct condition *cond, struct lock *lock)
   ASSERT (!intr_context ());
   ASSERT (lock_held_by_current_thread (lock));
   sema_init (&waiter.semaphore, 0);
-  list_push_back (&cond->waiters, &waiter.elem);
+//  list_push_back (&cond->waiters, &waiter.elem);
+  list_insert_ordered(&cond->waiters, &waiter.elem,
+        condvar_priority_comparator, NULL); // sort list
   waiter.priority = thread_current()->priority;
   lock_release (lock);
   sema_down (&waiter.semaphore);
@@ -344,7 +346,7 @@ cond_signal (struct condition *cond, struct lock *lock UNUSED)
   ASSERT (lock_held_by_current_thread (lock));
 
   if (!list_empty (&cond->waiters)){  
-    list_sort(&cond->waiters, condvar_priority_comparator, NULL); // sort list
+//    list_sort(&cond->waiters, condvar_priority_comparator, NULL); // sort list
     sema_up (&list_entry (list_pop_front (&cond->waiters),
                           struct semaphore_elem, elem)->semaphore);
   }
